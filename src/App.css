@@ -37,13 +37,47 @@ input[type="text"] {
   background: #fafbfc;
   transition: border 0.2s;
 }
+
+/* 플레이스홀더 텍스트 스타일 추가 */
+input[type="text"]::placeholder {
+  color: #bbb; /* 더 연한 색상으로 변경 */
+  opacity: 1; /* 브라우저 기본 opacity 문제 해결 */
+}
+
 input[type="text"]:last-child {
   margin-bottom: 0;
 }
+
 input[type="text"]:focus {
   border: 1.5px solid #a3a3ff;
   outline: none;
   background: #fff;
+}
+
+input[type="date"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  background: #ffffff;
+  transition: border 0.2s, box-shadow 0.2s;
+  color: #333;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="%23666"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+}
+
+input[type="date"]:focus {
+  border-color: #a3a3ff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99, 91, 255, 0.2);
 }
 
 button {
