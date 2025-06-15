@@ -1,0 +1,96 @@
+body {
+  background: #f7f7fa;
+  font-family: 'Segoe UI', 'Noto Sans KR', Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.App {
+  max-width: 480px;
+  margin: 48px auto;
+  padding: 0 16px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px 0 rgba(60,60,60,0.07);
+  padding: 32px 24px 24px 24px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+h2, h3 {
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #222;
+}
+
+input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1.5px solid #e3e3e7;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  background: #fafbfc;
+  transition: border 0.2s;
+}
+input[type="text"]:last-child {
+  margin-bottom: 0;
+}
+input[type="text"]:focus {
+  border: 1.5px solid #a3a3ff;
+  outline: none;
+  background: #fff;
+}
+
+button {
+  background: #635bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+button:hover {
+  background: #5146e1;
+}
+
+ul, ol {
+  padding-left: 20px;
+}
+
+.diary-list {
+  margin-top: 12px;
+}
+
+.diary-item {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px 0 rgba(60,60,60,0.06);
+  padding: 18px 16px 12px 16px;
+  margin-bottom: 18px;
+}
+
+.diary-item strong {
+  color: #635bff;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 600px) {
+  .App {
+    padding: 0 4px;
+  }
+  .card {
+    padding: 18px 8px 14px 8px;
+  }
+  .diary-item {
+    padding: 12px 6px 8px 6px;
+  }
+}
