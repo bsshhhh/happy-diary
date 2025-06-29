@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/happy-diary/static/css/main.1da6cadd.css",
-    "main.js": "/happy-diary/static/js/main.6456332d.js",
+    "main.css": "/happy-diary/static/css/main.07bd3dd1.css",
+    "main.js": "/happy-diary/static/js/main.c1077b92.js",
     "static/js/453.d9a19648.chunk.js": "/happy-diary/static/js/453.d9a19648.chunk.js",
     "index.html": "/happy-diary/index.html",
-    "main.1da6cadd.css.map": "/happy-diary/static/css/main.1da6cadd.css.map",
-    "main.6456332d.js.map": "/happy-diary/static/js/main.6456332d.js.map",
+    "main.07bd3dd1.css.map": "/happy-diary/static/css/main.07bd3dd1.css.map",
+    "main.c1077b92.js.map": "/happy-diary/static/js/main.c1077b92.js.map",
     "453.d9a19648.chunk.js.map": "/happy-diary/static/js/453.d9a19648.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.1da6cadd.css",
-    "static/js/main.6456332d.js"
+    "static/css/main.07bd3dd1.css",
+    "static/js/main.c1077b92.js"
   ]
 }

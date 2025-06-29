@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Happy Diary",
+  "name": "Happy Diary - AI-powered Personal Diary",
   "icons": [
     {
       "src": "favicon.ico",
