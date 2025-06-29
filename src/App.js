@@ -6,7 +6,9 @@ import {
   addDiaryEntry, 
   updateDiaryEntry, 
   deleteDiaryEntryByDate,
-  getDiaryEntryByDate
+  getDiaryEntryByDate,
+  saveHappinessAnalysis,
+  getHappinessAnalysis as getFirebaseHappinessAnalysis
 } from './firebaseService';
 import { onAuthStateChange, logOut, getCurrentUser } from './authService';
 import Auth from './Auth';
@@ -71,7 +73,7 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChange(async (user) => {
       console.log('Auth state changed:', user);
-      
+    
       // 회원가입 중일 때는 인증 상태 변경을 무시
       if (isSignupInProgress) {
         console.log('Ignoring auth state change during signup');
@@ -103,13 +105,19 @@ function App() {
   const handleLogout = async () => {
     try {
       await logOut();
+      // 모든 상태 초기화
       setDiaryList([]);
       setEntries(['', '', '']);
       setAIFeedback('');
       setHappinessAnalysisResult('');
+      setHappinessSummary('');
+      setShowAllMoments(false);
+      setRandomPlaceholders(generateRandomPlaceholders());
+      // localStorage에서 분석 결과도 제거
+      localStorage.removeItem('happinessAnalysisResult');
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
-    }
+      }
   };
 
   // 랜덤 placeholder 생성 함수
@@ -128,41 +136,7 @@ function App() {
     const loadDiaryEntries = async () => {
       try {
         const entries = await getAllDiaryEntries();
-        
-        // Firebase에 데이터가 없고 localStorage에 데이터가 있으면 마이그레이션
-        if (entries.length === 0) {
-          const saved = localStorage.getItem('happyDiary');
-          if (saved) {
-            const localData = JSON.parse(saved);
-            if (localData.length > 0) {
-              console.log('localStorage 데이터를 Firebase로 마이그레이션 중...');
-              
-              // localStorage 데이터를 Firebase로 마이그레이션
-              for (const entry of localData) {
-                if (entry && entry.date && entry.items) {
-                  try {
-                    await addDiaryEntry({
-                      date: entry.date,
-                      items: entry.items,
-                      aiFeedback: entry.aiFeedback || ''
-                    });
-                    console.log(`${entry.date} 데이터 마이그레이션 완료`);
-                  } catch (error) {
-                    console.error(`${entry.date} 마이그레이션 실패:`, error);
-                  }
-                }
-              }
-              
-              // 마이그레이션 후 데이터 다시 로드
-              const migratedEntries = await getAllDiaryEntries();
-              setDiaryList(migratedEntries);
-              
-              alert('기존 데이터가 Firebase로 성공적으로 마이그레이션되었습니다! 🎉');
-            }
-          }
-        } else {
-          setDiaryList(entries);
-        }
+        setDiaryList(entries);
 
         // 선택된 날짜의 기록을 찾아 입력 폼과 AI 피드백에 반영
         const currentEntry = entries.find(d => d.date === selectedDate);
@@ -174,10 +148,14 @@ function App() {
           setAIFeedback('');
         }
 
-        // ✅ 행복 분석 결과 불러오기 (localStorage에서)
-        const savedAnalysis = localStorage.getItem('happinessAnalysisResult');
-        if (savedAnalysis) {
-          setHappinessAnalysisResult(savedAnalysis);
+        // ✅ 행복 분석 결과 불러오기 (Firebase에서)
+        try {
+          const savedAnalysis = await getFirebaseHappinessAnalysis();
+          if (savedAnalysis) {
+            setHappinessAnalysisResult(savedAnalysis);
+          }
+        } catch (error) {
+          console.error('분석 결과 불러오기 중 오류:', error);
         }
       } catch (error) {
         console.error('Firebase에서 데이터 불러오기 중 오류:', error);
@@ -185,8 +163,11 @@ function App() {
       }
     };
 
-    loadDiaryEntries();
-  }, [selectedDate]);
+    // 사용자가 로그인되어 있을 때만 데이터를 불러옴
+    if (user) {
+      loadDiaryEntries();
+    }
+  }, [selectedDate, user]);
 
   // 기록 저장
   const handleSave = async () => {
@@ -257,7 +238,8 @@ function App() {
     try {
       const analysis = await getHappinessAnalysis(diaryList);
       setHappinessAnalysisResult(analysis);
-      localStorage.setItem('happinessAnalysisResult', analysis); // 분석 결과를 localStorage에 저장
+      // Firebase에 분석 결과 저장
+      await saveHappinessAnalysis(analysis);
     } catch (e) {
       console.error('행복 분석 중 오류 발생:', e);
       alert(`행복 분석 중 오류가 발생했습니다: ${e.message || e}`);
@@ -275,9 +257,9 @@ function App() {
   const handleChange = (idx, value) => {
     // 글자 수 제한 적용
     if (value.length <= MAX_CHAR_LIMIT) {
-      const newEntries = [...entries];
-      newEntries[idx] = value;
-      setEntries(newEntries);
+    const newEntries = [...entries];
+    newEntries[idx] = value;
+    setEntries(newEntries);
     }
   };
 
@@ -298,13 +280,13 @@ function App() {
         const updatedEntries = await getAllDiaryEntries();
         setDiaryList(updatedEntries);
         
-        // 만약 삭제된 날짜가 현재 선택된 날짜라면 입력 필드 초기화
-        if (selectedDate === dateToDelete) {
-          setEntries(['', '', '']);
-          setAIFeedback('');
-        }
+      // 만약 삭제된 날짜가 현재 선택된 날짜라면 입력 필드 초기화
+      if (selectedDate === dateToDelete) {
+        setEntries(['', '', '']);
+        setAIFeedback('');
+      }
         
-        alert('기록이 성공적으로 삭제되었습니다. ✅');
+      alert('기록이 성공적으로 삭제되었습니다. ✅');
       } catch (error) {
         console.error('삭제 중 오류:', error);
         alert('삭제 중 오류가 발생했습니다.');
@@ -352,7 +334,11 @@ function App() {
         marginBottom: '20px',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
       }}>
         <div>
           <h3 style={{ margin: 0, fontSize: '18px' }}>
@@ -392,11 +378,11 @@ function App() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {[0, 1, 2].map(i => (
             <div key={i} style={{ position: 'relative' }}>
-              <input
-                type="text"
+            <input
+              type="text"
                 placeholder={randomPlaceholders[i] || examplePlaceholders[i % examplePlaceholders.length]}
-                value={entries[i]}
-                onChange={e => handleChange(i, e.target.value)}
+              value={entries[i]}
+              onChange={e => handleChange(i, e.target.value)}
                 maxLength={MAX_CHAR_LIMIT}
                 style={{ 
                   width: '100%',

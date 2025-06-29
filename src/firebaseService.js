@@ -147,4 +147,54 @@ export const subscribeToDiaryEntries = (callback) => {
   } catch (error) {
     console.error('실시간 동기화 설정 중 오류:', error);
   }
+};
+
+// 행복 분석 결과 저장
+export const saveHappinessAnalysis = async (analysis) => {
+  try {
+    const userCollection = getCurrentUserCollection();
+    const analysisRef = collection(db, `${userCollection}_analysis`);
+    
+    // 기존 분석 결과가 있으면 업데이트, 없으면 새로 생성
+    const existingQuery = query(analysisRef);
+    const existingSnapshot = await getDocs(existingQuery);
+    
+    if (!existingSnapshot.empty) {
+      // 기존 문서 업데이트
+      const docRef = doc(db, `${userCollection}_analysis`, existingSnapshot.docs[0].id);
+      await updateDoc(docRef, {
+        analysis: analysis,
+        updatedAt: serverTimestamp()
+      });
+    } else {
+      // 새 문서 생성
+      await addDoc(analysisRef, {
+        analysis: analysis,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    }
+  } catch (error) {
+    console.error('행복 분석 결과 저장 중 오류:', error);
+    throw error;
+  }
+};
+
+// 행복 분석 결과 불러오기
+export const getHappinessAnalysis = async () => {
+  try {
+    const userCollection = getCurrentUserCollection();
+    const analysisRef = collection(db, `${userCollection}_analysis`);
+    const q = query(analysisRef);
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return doc.data().analysis;
+    }
+    return null;
+  } catch (error) {
+    console.error('행복 분석 결과 불러오기 중 오류:', error);
+    throw error;
+  }
 }; 
