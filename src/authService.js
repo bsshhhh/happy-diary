@@ -3,7 +3,9 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  sendEmailVerification,
+  signInAnonymously
 } from 'firebase/auth';
 import { auth } from './firebase';
 
@@ -31,6 +33,17 @@ export const signIn = async (email, password) => {
     return userCredential.user;
   } catch (error) {
     console.error('로그인 중 오류:', error);
+    throw error;
+  }
+};
+
+// 비회원(익명) 로그인
+export const signInAsGuest = async () => {
+  try {
+    const userCredential = await signInAnonymously(auth);
+    return userCredential.user;
+  } catch (error) {
+    console.error('비회원(익명) 로그인 중 오류:', error);
     throw error;
   }
 };

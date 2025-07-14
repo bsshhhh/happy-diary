@@ -129,7 +129,8 @@
 }
 
 .switch-button:hover {
-  color: #5a6fd8;
+  color: #fff;
+  background: #5a6fd8;
 }
 
 @media (max-width: 480px) {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { signUp, signIn, logOut } from './authService';
+import { signUp, signIn, logOut, signInAsGuest } from './authService';
 import Popup from './Popup';
 import './Auth.css';
 
@@ -47,7 +47,7 @@ function Auth({ onAuthSuccess, onSignupStart, onSignupComplete }) {
         await new Promise(resolve => setTimeout(resolve, 500));
         
         // 회원가입 성공 메시지 표시
-        setSuccessMessage(`${displayName}님, 회원가입이 완료되었습니다! 로그인해주세요.`);
+        setSuccessMessage(`${displayName}님, 회원가입이 완료되었습니다!\n\n이메일로 인증 메일이 발송되었습니다.\n메일함에서 인증을 완료하신 후 로그인해주세요.`);
         setShowSuccessPopup(true);
         
         // 로그인 모드로 전환
@@ -110,6 +110,21 @@ function Auth({ onAuthSuccess, onSignupStart, onSignupComplete }) {
       }
       
       setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 비회원(익명) 로그인 핸들러
+  const handleGuestLogin = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await signInAsGuest();
+      onAuthSuccess();
+    } catch (error) {
+      setError('비회원(익명) 로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.error('비회원(익명) 로그인 오류:', error);
     } finally {
       setLoading(false);
     }
@@ -188,7 +203,6 @@ function Auth({ onAuthSuccess, onSignupStart, onSignupComplete }) {
             {loading ? '처리 중...' : (isLogin ? '로그인' : '회원가입')}
           </button>
         </form>
-        
         <div className="auth-switch">
           <p>
             {isLogin ? '계정이 없으신가요?' : '이미 계정이 있으신가요?'}
@@ -200,6 +214,16 @@ function Auth({ onAuthSuccess, onSignupStart, onSignupComplete }) {
               {isLogin ? '회원가입' : '로그인'}
             </button>
           </p>
+          {/* 비회원(익명) 로그인 버튼 - switch-button 스타일로 */}
+          <button
+            type="button"
+            className="switch-button"
+            style={{ marginTop: 12, display: 'inline-block' }}
+            onClick={handleGuestLogin}
+            disabled={loading}
+          >
+            비회원으로 시작하기
+          </button>
         </div>
       </div>
       

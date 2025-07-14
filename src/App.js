@@ -64,6 +64,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [isSignupInProgress, setIsSignupInProgress] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false); // Auth 모달 상태
 
   // 날짜 포맷 (YYYY-MM-DD)
   const today = new Date().toISOString().slice(0, 10);
@@ -311,14 +312,14 @@ function App() {
   }
 
   // 로그인되지 않았으면 Auth 컴포넌트 표시
-  if (!user) {
+  if (!user || isAuthOpen) {
     return <Auth 
-      onAuthSuccess={() => {}} 
+      onAuthSuccess={() => setIsAuthOpen(false)} 
       onSignupStart={() => setIsSignupInProgress(true)}
       onSignupComplete={() => {
         setIsSignupInProgress(false);
-        // 회원가입 완료 후 인증 상태를 강제로 null로 설정
         setUser(null);
+        setIsAuthOpen(false);
       }}
     />;
   }
@@ -342,29 +343,49 @@ function App() {
       }}>
         <div>
           <h3 style={{ margin: 0, fontSize: '18px' }}>
-            안녕하세요, {user.displayName || user.email.split('@')[0]}님! 🌟
+            안녕하세요, {user.displayName || (user.email ? user.email.split('@')[0] : '게스트')}님! 🌟
           </h3>
           <p style={{ margin: '5px 0 0 0', fontSize: '14px', opacity: 0.9 }}>
             오늘도 행복한 순간을 기록해보세요
           </p>
         </div>
-        <button
-          onClick={handleLogout}
-          style={{
-            background: 'rgba(255, 255, 255, 0.2)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            transition: 'background 0.2s'
-          }}
-          onMouseOver={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
-          onMouseOut={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
-        >
-          로그아웃
-        </button>
+        {user.isAnonymous ? (
+          <button
+            onClick={() => setIsAuthOpen(true)}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              transition: 'background 0.2s'
+            }}
+            onMouseOver={e => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
+            onMouseOut={e => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
+          >
+            로그인
+          </button>
+        ) : (
+          <button
+            onClick={handleLogout}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              transition: 'background 0.2s'
+            }}
+            onMouseOver={e => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
+            onMouseOut={e => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
+          >
+            로그아웃
+          </button>
+        )}
       </div>
 
       <div className="card">
